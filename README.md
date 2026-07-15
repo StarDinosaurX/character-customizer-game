@@ -61,6 +61,7 @@ Character Creator Screen
 3. Click Random to generate random designs
 4. Enter a character name
 5. Click Save & Play to start the game
+   
 Game Screen
 1. Move Left/Right: Arrow keys or A/D keys
 2. Collect: Gold orbs = +10 points
