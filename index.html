@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CharacterMaker - Tomodachi-style Creator & Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- How to run: Open this file in a modern web browser (Chrome, Firefox, Safari, Edge). -->
+    
+    <div id="app">
+        <!-- Character Creator Screen -->
+        <div id="creatorScreen" class="screen active">
+            <div class="creator-container">
+                <h1>✨ CharacterMaker ✨</h1>
+                <div class="creator-layout">
+                    <!-- Preview Canvas -->
+                    <div class="preview-section">
+                        <h2>Preview</h2>
+                        <canvas id="previewCanvas" width="300" height="400"></canvas>
+                        <button id="saveCharBtn" class="btn-primary">Save & Play</button>
+                        <button id="randomBtn" class="btn-secondary">Random</button>
+                    </div>
+
+                    <!-- Customization Options -->
+                    <div class="options-section">
+                        <h2>Customize</h2>
+                        <div class="option-group">
+                            <label>Skin Tone</label>
+                            <select id="skinTone">
+                                <option value="#fdbcb4">Light</option>
+                                <option value="#f4a460">Tan</option>
+                                <option value="#d4a574" selected>Medium</option>
+                                <option value="#a0826d">Dark</option>
+                                <option value="#6b4423">Very Dark</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Face Shape</label>
+                            <select id="faceShape">
+                                <option value="round" selected>Round</option>
+                                <option value="square">Square</option>
+                                <option value="oval">Oval</option>
+                                <option value="heart">Heart</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Eye Style</label>
+                            <select id="eyeStyle">
+                                <option value="round" selected>Round</option>
+                                <option value="almond">Almond</option>
+                                <option value="droopy">Droopy</option>
+                                <option value="wide">Wide</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Eye Color</label>
+                            <select id="eyeColor">
+                                <option value="#4a4a4a" selected>Black</option>
+                                <option value="#8b4513">Brown</option>
+                                <option value="#4169e1">Blue</option>
+                                <option value="#228b22">Green</option>
+                                <option value="#dc143c">Red</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Nose Style</label>
+                            <select id="noseStyle">
+                                <option value="small" selected>Small</option>
+                                <option value="round">Round</option>
+                                <option value="pointed">Pointed</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Mouth</label>
+                            <select id="mouthStyle">
+                                <option value="smile" selected>Smile</option>
+                                <option value="big">Big Smile</option>
+                                <option value="neutral">Neutral</option>
+                                <option value="sad">Sad</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Hair Style</label>
+                            <select id="hairStyle">
+                                <option value="short" selected>Short</option>
+                                <option value="long">Long</option>
+                                <option value="spiky">Spiky</option>
+                                <option value="curly">Curly</option>
+                                <option value="straight">Straight</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Hair Color</label>
+                            <select id="hairColor">
+                                <option value="#1a1a1a" selected>Black</option>
+                                <option value="#8b4513">Brown</option>
+                                <option value="#ffd700">Blonde</option>
+                                <option value="#ff4500">Red</option>
+                                <option value="#e6e6fa">Purple</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Eyebrows</label>
+                            <select id="eyebrowStyle">
+                                <option value="normal" selected>Normal</option>
+                                <option value="thick">Thick</option>
+                                <option value="thin">Thin</option>
+                                <option value="angry">Angry</option>
+                            </select>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Character Name</label>
+                            <input type="text" id="charName" placeholder="Enter name..." maxlength="20">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen">
+            <div class="game-header">
+                <h2 id="charTitle">Game</h2>
+                <div class="game-stats">
+                    <span>Score: <span id="score">0</span></span>
+                    <span>Health: <span id="health">100</span></span>
+                </div>
+                <button id="pauseBtn" class="btn-small">Pause</button>
+                <button id="backBtn" class="btn-small">Back to Creator</button>
+            </div>
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div id="pauseOverlay" class="overlay hidden">
+                <div class="overlay-content">
+                    <h2>PAUSED</h2>
+                    <button id="resumeBtn" class="btn-primary">Resume</button>
+                    <button id="backFromPauseBtn" class="btn-secondary">Back to Creator</button>
+                </div>
+            </div>
+            <div id="gameOverOverlay" class="overlay hidden">
+                <div class="overlay-content">
+                    <h2>GAME OVER</h2>
+                    <p id="finalScore">Final Score: 0</p>
+                    <button id="newGameBtn" class="btn-primary">New Game</button>
+                    <button id="backFromGameOverBtn" class="btn-secondary">Back to Creator</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
