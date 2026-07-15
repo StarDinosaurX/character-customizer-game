@@ -12,14 +12,14 @@ class CharacterCreator {
 
     getDefaultCharacter() {
         return {
-            skinTone: '#d4a574',
+            skinTone: '#f4cdb4',
             faceShape: 'round',
             eyeStyle: 'round',
             eyeColor: '#4a4a4a',
             noseStyle: 'small',
             mouthStyle: 'smile',
             hairStyle: 'short',
-            hairColor: '#1a1a1a',
+            hairColor: '#2c2416',
             eyebrowStyle: 'normal',
             name: 'MyChar'
         };
@@ -49,14 +49,14 @@ class CharacterCreator {
     }
 
     randomize() {
-        const skins = ['#fdbcb4', '#f4a460', '#d4a574', '#a0826d', '#6b4423'];
-        const faces = ['round', 'square', 'oval', 'heart'];
+        const skins = ['#f4cdb4', '#e8b89c', '#d4a574', '#c9935a', '#a0826d', '#8b6f47', '#6b5344'];
+        const faces = ['round', 'square', 'oval', 'rect', 'diamond'];
         const eyes = ['round', 'almond', 'droopy', 'wide'];
-        const eyeColors = ['#4a4a4a', '#8b4513', '#4169e1', '#228b22', '#dc143c'];
+        const eyeColors = ['#4a4a4a', '#8b4513', '#4169e1', '#228b22', '#6b4423'];
         const noses = ['small', 'round', 'pointed'];
         const mouths = ['smile', 'big', 'neutral', 'sad'];
-        const hairs = ['short', 'long', 'spiky', 'curly', 'straight'];
-        const hairColors = ['#1a1a1a', '#8b4513', '#ffd700', '#ff4500', '#e6e6fa'];
+        const hairs = ['short', 'long', 'spiky', 'curly', 'bob', 'pixie', 'wavy'];
+        const hairColors = ['#2c2416', '#4a3c2a', '#8b6f47', '#d4a574', '#ffd700', '#dc143c', '#8b4789'];
         const eyebrows = ['normal', 'thick', 'thin', 'angry'];
 
         this.character = {
@@ -88,10 +88,15 @@ class CharacterCreator {
     draw() {
         const w = this.canvas.width;
         const h = this.canvas.height;
-        this.ctx.fillStyle = 'white';
+        
+        // Gradient background
+        const gradient = this.ctx.createLinearGradient(0, 0, w, h);
+        gradient.addColorStop(0, '#e0c3fc');
+        gradient.addColorStop(1, '#8ec5fc');
+        this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, w, h);
 
-        this.drawHair(w / 2, h / 2);
+        this.drawHair(w / 2, h / 2 - 20);
         this.drawFace(w / 2, h / 2);
         this.drawEyebrows(w / 2, h / 2);
         this.drawEyes(w / 2, h / 2);
@@ -104,7 +109,7 @@ class CharacterCreator {
         this.ctx.strokeStyle = '#333';
         this.ctx.lineWidth = 3;
 
-        const w = 120, h = 140;
+        const w = 100, h = 130;
         const shape = this.character.faceShape;
 
         if (shape === 'round') {
@@ -113,92 +118,200 @@ class CharacterCreator {
             this.ctx.fill();
             this.ctx.stroke();
         } else if (shape === 'square') {
-            this.ctx.fillRect(cx - w, cy - h, w * 2, h * 2);
-            this.ctx.strokeRect(cx - w, cy - h, w * 2, h * 2);
+            const size = 100;
+            this.ctx.fillRect(cx - size, cy - size * 1.2, size * 2, size * 2.2);
+            this.ctx.strokeRect(cx - size, cy - size * 1.2, size * 2, size * 2.2);
         } else if (shape === 'oval') {
             this.ctx.beginPath();
-            this.ctx.ellipse(cx, cy, w * 0.85, h, 0, 0, Math.PI * 2);
+            this.ctx.ellipse(cx, cy, w * 0.8, h * 1.1, 0, 0, Math.PI * 2);
             this.ctx.fill();
             this.ctx.stroke();
-        } else if (shape === 'heart') {
-            this.drawHeart(cx, cy, w);
+        } else if (shape === 'rect') {
+            const rw = 95, rh = 145;
+            this.ctx.fillRect(cx - rw, cy - rh, rw * 2, rh * 2);
+            this.ctx.strokeRect(cx - rw, cy - rh, rw * 2, rh * 2);
+        } else if (shape === 'diamond') {
+            this.ctx.beginPath();
+            this.ctx.moveTo(cx, cy - h * 1.2);
+            this.ctx.lineTo(cx + w * 1.1, cy);
+            this.ctx.lineTo(cx, cy + h * 1.2);
+            this.ctx.lineTo(cx - w * 1.1, cy);
+            this.ctx.closePath();
+            this.ctx.fill();
+            this.ctx.stroke();
         }
-    }
-
-    drawHeart(cx, cy, size) {
-        this.ctx.fillStyle = this.character.skinTone;
-        this.ctx.beginPath();
-        this.ctx.moveTo(cx, cy + size * 0.7);
-        this.ctx.quadraticCurveTo(cx - size * 0.7, cy - size * 0.2, cx - size * 0.7, cy - size * 0.4);
-        this.ctx.quadraticCurveTo(cx - size * 0.7, cy - size * 0.8, cx, cy - size * 0.5);
-        this.ctx.quadraticCurveTo(cx + size * 0.7, cy - size * 0.8, cx + size * 0.7, cy - size * 0.4);
-        this.ctx.quadraticCurveTo(cx + size * 0.7, cy - size * 0.2, cx, cy + size * 0.7);
-        this.ctx.fill();
-        this.ctx.stroke();
     }
 
     drawHair(cx, cy) {
         this.ctx.fillStyle = this.character.hairColor;
-        this.ctx.strokeStyle = '#333';
+        this.ctx.strokeStyle = '#2c2416';
         this.ctx.lineWidth = 2;
 
         const style = this.character.hairStyle;
-        const size = 60;
+        const size = 70;
 
         if (style === 'short') {
+            // Short hair - covers top and sides
             this.ctx.beginPath();
-            this.ctx.ellipse(cx, cy - 80, size * 1.2, size * 0.6, 0, 0, Math.PI * 2);
+            this.ctx.ellipse(cx, cy - 95, size * 1.3, size * 0.7, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx - 70, cy - 40, size * 0.5, size * 0.6, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx + 70, cy - 40, size * 0.5, size * 0.6, 0, 0, Math.PI * 2);
             this.ctx.fill();
             this.ctx.stroke();
         } else if (style === 'long') {
-            this.ctx.fillRect(cx - size * 0.8, cy - 80, size * 1.6, size * 1.4);
-            this.ctx.strokeRect(cx - size * 0.8, cy - 80, size * 1.6, size * 1.4);
+            // Long hair down sides and back
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx, cy - 95, size * 1.3, size * 0.7, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx - 85, cy + 20, size * 0.6, size * 1.3, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx + 85, cy + 20, size * 0.6, size * 1.3, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            // Back hair
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx, cy + 40, size * 0.9, size * 1.1, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
         } else if (style === 'spiky') {
-            for (let i = 0; i < 5; i++) {
-                const angle = (i / 5) * Math.PI + Math.PI * 0.5;
+            // Spiky hair with individual spikes
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx, cy - 90, size * 1.2, size * 0.6, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            for (let i = 0; i < 7; i++) {
+                const angle = (i / 7) * Math.PI - Math.PI / 2;
                 const x1 = cx + Math.cos(angle) * size * 0.8;
-                const y1 = cy - 80 + Math.sin(angle) * size * 0.8;
-                const x2 = cx + Math.cos(angle) * size;
-                const y2 = cy - 100 + Math.sin(angle) * size;
+                const y1 = cy - 90 + Math.sin(angle) * size * 0.5;
+                const x2 = cx + Math.cos(angle) * (size * 1.3);
+                const y2 = cy - 120 + Math.sin(angle) * (size * 0.8);
+                
                 this.ctx.beginPath();
                 this.ctx.moveTo(x1, y1);
                 this.ctx.lineTo(x2, y2);
-                this.ctx.lineWidth = 15;
+                this.ctx.lineWidth = 12;
                 this.ctx.stroke();
             }
         } else if (style === 'curly') {
-            for (let i = 0; i < 8; i++) {
-                const angle = (i / 8) * Math.PI * 2;
-                const x = cx + Math.cos(angle) * size;
-                const y = cy - 70 + Math.sin(angle) * size * 0.5;
+            // Curly fluffy hair
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx, cy - 95, size * 1.4, size * 0.8, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                const x = cx + Math.cos(angle) * size * 1.2;
+                const y = cy - 80 + Math.sin(angle) * size * 0.6;
                 this.ctx.beginPath();
-                this.ctx.arc(x, y, 20, 0, Math.PI * 2);
+                this.ctx.arc(x, y, 18, 0, Math.PI * 2);
                 this.ctx.fill();
                 this.ctx.stroke();
             }
-        } else if (style === 'straight') {
+        } else if (style === 'bob') {
+            // Bob cut - straight sides with full top
             this.ctx.beginPath();
-            this.ctx.moveTo(cx - size, cy - 80);
-            this.ctx.lineTo(cx - size, cy + size * 0.5);
-            this.ctx.lineTo(cx + size, cy + size * 0.5);
-            this.ctx.lineTo(cx + size, cy - 80);
+            this.ctx.ellipse(cx, cy - 95, size * 1.25, size * 0.7, 0, 0, Math.PI * 2);
             this.ctx.fill();
             this.ctx.stroke();
+            
+            this.ctx.fillRect(cx - size * 0.9, cy - 50, size * 0.45, size * 1.2);
+            this.ctx.fillRect(cx + size * 0.45, cy - 50, size * 0.45, size * 1.2);
+            
+            this.ctx.strokeRect(cx - size * 0.9, cy - 50, size * 0.45, size * 1.2);
+            this.ctx.strokeRect(cx + size * 0.45, cy - 50, size * 0.45, size * 1.2);
+        } else if (style === 'pixie') {
+            // Short pixie cut
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx, cy - 90, size * 0.9, size * 0.6, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx - 65, cy - 35, size * 0.4, size * 0.5, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx + 65, cy - 35, size * 0.4, size * 0.5, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+        } else if (style === 'wavy') {
+            // Wavy long hair
+            this.ctx.beginPath();
+            this.ctx.ellipse(cx, cy - 95, size * 1.3, size * 0.7, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            // Wavy sides
+            for (let i = 0; i < 3; i++) {
+                const y = cy - 40 + i * 50;
+                this.ctx.beginPath();
+                this.ctx.bezierCurveTo(
+                    cx - size * 0.8, y,
+                    cx - size * 1.2, y + 30,
+                    cx - size * 0.8, y + 50
+                );
+                this.ctx.bezierCurveTo(
+                    cx - size * 0.9, y + 60,
+                    cx - size * 0.6, y + 70,
+                    cx - size * 0.7, y + 80
+                );
+                this.ctx.lineTo(cx - size * 0.5, y + 80);
+                this.ctx.lineTo(cx - size * 0.5, y);
+                this.ctx.fill();
+                this.ctx.stroke();
+            }
+            
+            for (let i = 0; i < 3; i++) {
+                const y = cy - 40 + i * 50;
+                this.ctx.beginPath();
+                this.ctx.bezierCurveTo(
+                    cx + size * 0.8, y,
+                    cx + size * 1.2, y + 30,
+                    cx + size * 0.8, y + 50
+                );
+                this.ctx.bezierCurveTo(
+                    cx + size * 0.9, y + 60,
+                    cx + size * 0.6, y + 70,
+                    cx + size * 0.7, y + 80
+                );
+                this.ctx.lineTo(cx + size * 0.5, y + 80);
+                this.ctx.lineTo(cx + size * 0.5, y);
+                this.ctx.fill();
+                this.ctx.stroke();
+            }
         }
     }
 
     drawEyes(cx, cy) {
-        this.drawEye(cx - 35, cy - 20);
-        this.drawEye(cx + 35, cy - 20);
+        this.drawEye(cx - 40, cy - 20);
+        this.drawEye(cx + 40, cy - 20);
     }
 
     drawEye(ex, ey) {
         this.ctx.fillStyle = '#fff';
         this.ctx.strokeStyle = '#333';
-        this.ctx.lineWidth = 2;
+        this.ctx.lineWidth = 2.5;
 
         const style = this.character.eyeStyle;
-        const size = 20;
+        const size = 22;
 
         if (style === 'round') {
             this.ctx.beginPath();
@@ -207,29 +320,38 @@ class CharacterCreator {
             this.ctx.stroke();
         } else if (style === 'almond') {
             this.ctx.beginPath();
-            this.ctx.ellipse(ex, ey, size, size * 0.7, Math.PI / 6, 0, Math.PI * 2);
+            this.ctx.ellipse(ex, ey, size * 1.1, size * 0.65, Math.PI / 6, 0, Math.PI * 2);
             this.ctx.fill();
             this.ctx.stroke();
         } else if (style === 'droopy') {
             this.ctx.beginPath();
-            this.ctx.ellipse(ex, ey + 5, size, size * 0.8, 0, 0, Math.PI * 2);
+            this.ctx.moveTo(ex - size, ey - 5);
+            this.ctx.quadraticCurveTo(ex, ey + size * 0.7, ex + size, ey - 5);
+            this.ctx.quadraticCurveTo(ex + size * 0.8, ey - size * 0.5, ex, ey - size * 0.3);
+            this.ctx.quadraticCurveTo(ex - size * 0.8, ey - size * 0.5, ex - size, ey - 5);
             this.ctx.fill();
             this.ctx.stroke();
         } else if (style === 'wide') {
             this.ctx.beginPath();
-            this.ctx.ellipse(ex, ey, size * 1.2, size * 0.6, 0, 0, Math.PI * 2);
+            this.ctx.ellipse(ex, ey, size * 1.3, size * 0.7, 0, 0, Math.PI * 2);
             this.ctx.fill();
             this.ctx.stroke();
         }
 
+        // Iris and pupil
         this.ctx.fillStyle = this.character.eyeColor;
         this.ctx.beginPath();
-        this.ctx.arc(ex, ey, size * 0.5, 0, Math.PI * 2);
+        this.ctx.arc(ex, ey, size * 0.45, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#000';
+        this.ctx.beginPath();
+        this.ctx.arc(ex + size * 0.1, ey - size * 0.1, size * 0.25, 0, Math.PI * 2);
         this.ctx.fill();
 
         this.ctx.fillStyle = '#fff';
         this.ctx.beginPath();
-        this.ctx.arc(ex - size * 0.2, ey - size * 0.2, size * 0.2, 0, Math.PI * 2);
+        this.ctx.arc(ex + size * 0.15, ey - size * 0.15, size * 0.1, 0, Math.PI * 2);
         this.ctx.fill();
     }
 
@@ -241,28 +363,31 @@ class CharacterCreator {
         const style = this.character.eyebrowStyle;
         let width = 3;
 
-        if (style === 'thick') width = 6;
+        if (style === 'thick') width = 5.5;
         if (style === 'thin') width = 1.5;
 
         this.ctx.lineWidth = width;
 
         if (style === 'angry') {
+            // Angry eyebrows angle UP toward center (positive slope, left brow and right brow mirror)
             this.ctx.beginPath();
-            this.ctx.moveTo(cx - 55, cy - 50);
-            this.ctx.lineTo(cx - 25, cy - 60);
+            this.ctx.moveTo(cx - 60, cy - 55);
+            this.ctx.lineTo(cx - 25, cy - 65);
             this.ctx.stroke();
+            
             this.ctx.beginPath();
-            this.ctx.moveTo(cx + 25, cy - 60);
-            this.ctx.lineTo(cx + 55, cy - 50);
+            this.ctx.moveTo(cx + 25, cy - 65);
+            this.ctx.lineTo(cx + 60, cy - 55);
             this.ctx.stroke();
         } else {
             this.ctx.beginPath();
-            this.ctx.moveTo(cx - 55, cy - 45);
-            this.ctx.lineTo(cx - 25, cy - 45);
+            this.ctx.moveTo(cx - 60, cy - 48);
+            this.ctx.lineTo(cx - 20, cy - 48);
             this.ctx.stroke();
+            
             this.ctx.beginPath();
-            this.ctx.moveTo(cx + 25, cy - 45);
-            this.ctx.lineTo(cx + 55, cy - 45);
+            this.ctx.moveTo(cx + 20, cy - 48);
+            this.ctx.lineTo(cx + 60, cy - 48);
             this.ctx.stroke();
         }
     }
@@ -275,18 +400,35 @@ class CharacterCreator {
         const style = this.character.noseStyle;
 
         if (style === 'small') {
-            this.ctx.fillRect(cx - 5, cy, 10, 15);
-            this.ctx.strokeRect(cx - 5, cy, 10, 15);
-        } else if (style === 'round') {
+            // Small nose - just small lines
             this.ctx.beginPath();
-            this.ctx.arc(cx, cy + 8, 12, 0, Math.PI * 2);
+            this.ctx.moveTo(cx, cy + 5);
+            this.ctx.lineTo(cx - 3, cy + 15);
+            this.ctx.stroke();
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(cx, cy + 5);
+            this.ctx.lineTo(cx + 3, cy + 15);
+            this.ctx.stroke();
+            
+            this.ctx.fillRect(cx - 2, cy + 12, 4, 6);
+        } else if (style === 'round') {
+            // Round bulbous nose
+            this.ctx.beginPath();
+            this.ctx.arc(cx, cy + 12, 14, 0, Math.PI * 2);
             this.ctx.fill();
             this.ctx.stroke();
-        } else if (style === 'pointed') {
+            
+            this.ctx.fillStyle = '#fff';
             this.ctx.beginPath();
-            this.ctx.moveTo(cx, cy - 5);
-            this.ctx.lineTo(cx - 8, cy + 15);
-            this.ctx.lineTo(cx + 8, cy + 15);
+            this.ctx.arc(cx - 6, cy + 8, 4, 0, Math.PI * 2);
+            this.ctx.fill();
+        } else if (style === 'pointed') {
+            // Pointed triangle nose
+            this.ctx.beginPath();
+            this.ctx.moveTo(cx, cy + 3);
+            this.ctx.lineTo(cx - 10, cy + 18);
+            this.ctx.lineTo(cx + 10, cy + 18);
             this.ctx.closePath();
             this.ctx.fill();
             this.ctx.stroke();
@@ -302,22 +444,22 @@ class CharacterCreator {
 
         if (style === 'smile') {
             this.ctx.beginPath();
-            this.ctx.arc(cx, cy + 50, 25, 0, Math.PI);
+            this.ctx.arc(cx, cy + 58, 28, 0, Math.PI);
             this.ctx.stroke();
         } else if (style === 'big') {
-            this.ctx.fillStyle = 'rgba(255, 192, 203, 0.5)';
+            this.ctx.fillStyle = 'rgba(255, 150, 180, 0.6)';
             this.ctx.beginPath();
-            this.ctx.arc(cx, cy + 50, 35, 0, Math.PI);
+            this.ctx.arc(cx, cy + 58, 32, 0, Math.PI);
             this.ctx.fill();
             this.ctx.stroke();
         } else if (style === 'neutral') {
             this.ctx.beginPath();
-            this.ctx.moveTo(cx - 25, cy + 50);
-            this.ctx.lineTo(cx + 25, cy + 50);
+            this.ctx.moveTo(cx - 28, cy + 55);
+            this.ctx.lineTo(cx + 28, cy + 55);
             this.ctx.stroke();
         } else if (style === 'sad') {
             this.ctx.beginPath();
-            this.ctx.arc(cx, cy + 65, 25, Math.PI, 0);
+            this.ctx.arc(cx, cy + 70, 28, Math.PI, 0);
             this.ctx.stroke();
         }
     }
