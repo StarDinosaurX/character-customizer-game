@@ -1,18 +1,24 @@
 // How to run: Link this file in index.html with <script src="main.js"></script>
 
-// ========== CHARACTER CREATOR ==========
+// ========== CHARACTER CREATOR (3D) ==========
 class CharacterCreator {
     constructor() {
         this.canvas = document.getElementById('previewCanvas');
         this.ctx = this.canvas.getContext('2d');
         this.character = this.getDefaultCharacter();
+        this.rotation = { x: 0, y: 0 };
+        this.zoom = 1;
+        this.isDragging = false;
+        this.lastMouse = { x: 0, y: 0 };
         this.setupEventListeners();
+        this.setupCanvasEvents();
         this.draw();
+        this.loadSavedCharacters();
     }
 
     getDefaultCharacter() {
         return {
-            skinTone: '#f4cdb4',
+            skinTone: '#6b5344',
             faceShape: 'round',
             eyeStyle: 'round',
             eyeColor: '#4a4a4a',
@@ -44,8 +50,70 @@ class CharacterCreator {
             });
         }
 
+        // Buttons
         document.getElementById('randomBtn').addEventListener('click', () => this.randomize());
-        document.getElementById('saveCharBtn').addEventListener('click', () => this.saveAndPlay());
+        document.getElementById('saveCharBtn').addEventListener('click', () => this.showSaveModal());
+        document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+
+        // Save Modal
+        document.getElementById('confirmSaveBtn').addEventListener('click', () => this.confirmSave());
+        document.getElementById('cancelSaveBtn').addEventListener('click', () => this.hideSaveModal());
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+        });
+    }
+
+    setupCanvasEvents() {
+        this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
+        this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+        this.canvas.addEventListener('mouseup', () => this.onMouseUp());
+        this.canvas.addEventListener('mouseleave', () => this.onMouseUp());
+        this.canvas.addEventListener('wheel', (e) => this.onScroll(e));
+    }
+
+    onMouseDown(e) {
+        this.isDragging = true;
+        this.lastMouse = { x: e.clientX, y: e.clientY };
+    }
+
+    onMouseMove(e) {
+        if (!this.isDragging) return;
+        
+        const dx = e.clientX - this.lastMouse.x;
+        const dy = e.clientY - this.lastMouse.y;
+        
+        this.rotation.y += dx * 0.01;
+        this.rotation.x += dy * 0.01;
+        
+        this.lastMouse = { x: e.clientX, y: e.clientY };
+        this.draw();
+    }
+
+    onMouseUp() {
+        this.isDragging = false;
+    }
+
+    onScroll(e) {
+        e.preventDefault();
+        this.zoom += e.deltaY > 0 ? -0.1 : 0.1;
+        this.zoom = Math.max(0.5, Math.min(2, this.zoom));
+        this.draw();
+    }
+
+    switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
     }
 
     randomize() {
@@ -58,6 +126,7 @@ class CharacterCreator {
         const hairs = ['short', 'long', 'spiky', 'curly', 'bob', 'pixie', 'wavy'];
         const hairColors = ['#2c2416', '#4a3c2a', '#8b6f47', '#d4a574', '#ffd700', '#dc143c', '#8b4789'];
         const eyebrows = ['normal', 'thick', 'thin', 'angry'];
+        const names = ['Alex', 'Jordan', 'Casey', 'Riley', 'Morgan', 'Taylor', 'Devon', 'Quinn', 'Sage', 'River'];
 
         this.character = {
             skinTone: skins[Math.floor(Math.random() * skins.length)],
@@ -69,9 +138,17 @@ class CharacterCreator {
             hairStyle: hairs[Math.floor(Math.random() * hairs.length)],
             hairColor: hairColors[Math.floor(Math.random() * hairColors.length)],
             eyebrowStyle: eyebrows[Math.floor(Math.random() * eyebrows.length)],
-            name: 'Randomized'
+            name: names[Math.floor(Math.random() * names.length)]
         };
 
+        this.updateUIValues();
+        this.draw();
+    }
+
+    reset() {
+        this.character = this.getDefaultCharacter();
+        this.rotation = { x: 0, y: 0 };
+        this.zoom = 1;
         this.updateUIValues();
         this.draw();
     }
@@ -83,25 +160,50 @@ class CharacterCreator {
             const elem = document.getElementById(id);
             if (elem) elem.value = this.character[id];
         });
+        document.getElementById('charName').value = this.character.name;
     }
 
     draw() {
         const w = this.canvas.width;
         const h = this.canvas.height;
         
-        // Gradient background
+        // Clear canvas with gradient
         const gradient = this.ctx.createLinearGradient(0, 0, w, h);
         gradient.addColorStop(0, '#e0c3fc');
         gradient.addColorStop(1, '#8ec5fc');
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, w, h);
 
-        this.drawHair(w / 2, h / 2 - 20);
-        this.drawFace(w / 2, h / 2);
-        this.drawEyebrows(w / 2, h / 2);
-        this.drawEyes(w / 2, h / 2);
-        this.drawNose(w / 2, h / 2);
-        this.drawMouth(w / 2, h / 2);
+        // Save context state
+        this.ctx.save();
+        
+        // Move to center
+        this.ctx.translate(w / 2, h / 2);
+        
+        // Apply zoom
+        this.ctx.scale(this.zoom, this.zoom);
+        
+        // Apply 3D rotation (simple isometric effect)
+        const skewFactor = Math.sin(this.rotation.y) * 0.3;
+        this.ctx.transform(1 + skewFactor, Math.sin(this.rotation.x) * 0.2, 0, 1, 0, 0);
+
+        // Draw character
+        this.drawCharacter();
+        
+        // Restore context
+        this.ctx.restore();
+    }
+
+    drawCharacter() {
+        const cx = 0;
+        const cy = 0;
+
+        this.drawHair(cx, cy - 20);
+        this.drawFace(cx, cy);
+        this.drawEyebrows(cx, cy);
+        this.drawEyes(cx, cy);
+        this.drawNose(cx, cy);
+        this.drawMouth(cx, cy);
     }
 
     drawFace(cx, cy) {
@@ -151,7 +253,6 @@ class CharacterCreator {
         const size = 70;
 
         if (style === 'short') {
-            // Short hair - covers top and sides
             this.ctx.beginPath();
             this.ctx.ellipse(cx, cy - 95, size * 1.3, size * 0.7, 0, 0, Math.PI * 2);
             this.ctx.fill();
@@ -167,7 +268,6 @@ class CharacterCreator {
             this.ctx.fill();
             this.ctx.stroke();
         } else if (style === 'long') {
-            // Long hair down sides and back
             this.ctx.beginPath();
             this.ctx.ellipse(cx, cy - 95, size * 1.3, size * 0.7, 0, 0, Math.PI * 2);
             this.ctx.fill();
@@ -183,13 +283,11 @@ class CharacterCreator {
             this.ctx.fill();
             this.ctx.stroke();
             
-            // Back hair
             this.ctx.beginPath();
             this.ctx.ellipse(cx, cy + 40, size * 0.9, size * 1.1, 0, 0, Math.PI * 2);
             this.ctx.fill();
             this.ctx.stroke();
         } else if (style === 'spiky') {
-            // Spiky hair with individual spikes
             this.ctx.beginPath();
             this.ctx.ellipse(cx, cy - 90, size * 1.2, size * 0.6, 0, 0, Math.PI * 2);
             this.ctx.fill();
@@ -209,7 +307,6 @@ class CharacterCreator {
                 this.ctx.stroke();
             }
         } else if (style === 'curly') {
-            // Curly fluffy hair
             this.ctx.beginPath();
             this.ctx.ellipse(cx, cy - 95, size * 1.4, size * 0.8, 0, 0, Math.PI * 2);
             this.ctx.fill();
@@ -225,7 +322,6 @@ class CharacterCreator {
                 this.ctx.stroke();
             }
         } else if (style === 'bob') {
-            // Bob cut - straight sides with full top
             this.ctx.beginPath();
             this.ctx.ellipse(cx, cy - 95, size * 1.25, size * 0.7, 0, 0, Math.PI * 2);
             this.ctx.fill();
@@ -237,7 +333,6 @@ class CharacterCreator {
             this.ctx.strokeRect(cx - size * 0.9, cy - 50, size * 0.45, size * 1.2);
             this.ctx.strokeRect(cx + size * 0.45, cy - 50, size * 0.45, size * 1.2);
         } else if (style === 'pixie') {
-            // Short pixie cut
             this.ctx.beginPath();
             this.ctx.ellipse(cx, cy - 90, size * 0.9, size * 0.6, 0, 0, Math.PI * 2);
             this.ctx.fill();
@@ -253,13 +348,11 @@ class CharacterCreator {
             this.ctx.fill();
             this.ctx.stroke();
         } else if (style === 'wavy') {
-            // Wavy long hair
             this.ctx.beginPath();
             this.ctx.ellipse(cx, cy - 95, size * 1.3, size * 0.7, 0, 0, Math.PI * 2);
             this.ctx.fill();
             this.ctx.stroke();
             
-            // Wavy sides
             for (let i = 0; i < 3; i++) {
                 const y = cy - 40 + i * 50;
                 this.ctx.beginPath();
@@ -338,7 +431,6 @@ class CharacterCreator {
             this.ctx.stroke();
         }
 
-        // Iris and pupil
         this.ctx.fillStyle = this.character.eyeColor;
         this.ctx.beginPath();
         this.ctx.arc(ex, ey, size * 0.45, 0, Math.PI * 2);
@@ -369,7 +461,6 @@ class CharacterCreator {
         this.ctx.lineWidth = width;
 
         if (style === 'angry') {
-            // Angry eyebrows angle UP toward center (positive slope, left brow and right brow mirror)
             this.ctx.beginPath();
             this.ctx.moveTo(cx - 60, cy - 55);
             this.ctx.lineTo(cx - 25, cy - 65);
@@ -400,7 +491,6 @@ class CharacterCreator {
         const style = this.character.noseStyle;
 
         if (style === 'small') {
-            // Small nose - just small lines
             this.ctx.beginPath();
             this.ctx.moveTo(cx, cy + 5);
             this.ctx.lineTo(cx - 3, cy + 15);
@@ -413,7 +503,6 @@ class CharacterCreator {
             
             this.ctx.fillRect(cx - 2, cy + 12, 4, 6);
         } else if (style === 'round') {
-            // Round bulbous nose
             this.ctx.beginPath();
             this.ctx.arc(cx, cy + 12, 14, 0, Math.PI * 2);
             this.ctx.fill();
@@ -424,7 +513,6 @@ class CharacterCreator {
             this.ctx.arc(cx - 6, cy + 8, 4, 0, Math.PI * 2);
             this.ctx.fill();
         } else if (style === 'pointed') {
-            // Pointed triangle nose
             this.ctx.beginPath();
             this.ctx.moveTo(cx, cy + 3);
             this.ctx.lineTo(cx - 10, cy + 18);
@@ -464,299 +552,85 @@ class CharacterCreator {
         }
     }
 
-    saveAndPlay() {
-        gameManager.startGame(this.character);
-    }
-}
-
-// ========== GAME ENGINE ==========
-class GameObject {
-    constructor(x, y, width, height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    showSaveModal() {
+        document.getElementById('saveModal').classList.remove('hidden');
+        document.getElementById('saveName').value = this.character.name;
+        document.getElementById('saveName').focus();
     }
 
-    collidesWith(other) {
-        return this.x < other.x + other.width &&
-               this.x + this.width > other.x &&
-               this.y < other.y + other.height &&
-               this.y + this.height > other.y;
-    }
-}
-
-class Player extends GameObject {
-    constructor(character) {
-        super(375, 500, 50, 50);
-        this.character = character;
-        this.velocity = { x: 0, y: 0 };
-        this.speed = 5;
+    hideSaveModal() {
+        document.getElementById('saveModal').classList.add('hidden');
     }
 
-    update(keys) {
-        this.velocity.x = 0;
-        if (keys['ArrowLeft'] || keys['a'] || keys['A']) this.velocity.x = -this.speed;
-        if (keys['ArrowRight'] || keys['d'] || keys['D']) this.velocity.x = this.speed;
+    confirmSave() {
+        const name = document.getElementById('saveName').value.trim();
+        if (!name) {
+            alert('Please enter a character name');
+            return;
+        }
 
-        this.x += this.velocity.x;
-        this.x = Math.max(0, Math.min(this.x, 800 - this.width));
+        const saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+        const charToSave = { ...this.character, name, savedDate: new Date().toLocaleString() };
+        saved.push(charToSave);
+        localStorage.setItem('savedCharacters', JSON.stringify(saved));
+        
+        this.hideSaveModal();
+        this.loadSavedCharacters();
+        alert(`Character "${name}" saved successfully!`);
     }
 
-    draw(ctx) {
-        ctx.fillStyle = '#d4a574';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.strokeStyle = '#333';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
+    loadSavedCharacters() {
+        const saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+        const list = document.getElementById('savedCharactersList');
+        
+        if (saved.length === 0) {
+            list.innerHTML = '<p class="empty-message">No saved characters yet</p>';
+            return;
+        }
 
-        ctx.fillStyle = '#4a4a4a';
-        ctx.beginPath();
-        ctx.arc(this.x + 15, this.y + 15, 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(this.x + 35, this.y + 15, 5, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
-
-class Collectible extends GameObject {
-    constructor(x, y) {
-        super(x, y, 20, 20);
-        this.collected = false;
-    }
-
-    draw(ctx) {
-        ctx.fillStyle = '#FFD700';
-        ctx.beginPath();
-        ctx.arc(this.x + 10, this.y + 10, 10, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#FFA500';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    }
-}
-
-class Enemy extends GameObject {
-    constructor(x, y) {
-        super(x, y, 30, 30);
-        this.velocityX = Math.random() > 0.5 ? 2 : -2;
+        list.innerHTML = saved.map((char, idx) => `
+            <div class="character-item">
+                <div>
+                    <div class="character-item-name">${char.name}</div>
+                    <div class="character-item-date">${char.savedDate}</div>
+                </div>
+                <div class="character-item-actions">
+                    <button class="char-btn-small char-btn-load" onclick="creator.loadCharacter(${idx})">Load</button>
+                    <button class="char-btn-small char-btn-delete" onclick="creator.deleteCharacter(${idx})">Delete</button>
+                </div>
+            </div>
+        `).join('');
     }
 
-    update() {
-        this.x += this.velocityX;
-        if (this.x <= 0 || this.x + this.width >= 800) {
-            this.velocityX *= -1;
+    loadCharacter(idx) {
+        const saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+        if (saved[idx]) {
+            this.character = { ...saved[idx] };
+            this.rotation = { x: 0, y: 0 };
+            this.zoom = 1;
+            this.updateUIValues();
+            this.draw();
+            // Switch back to appearance tab
+            document.getElementById('appearance').classList.add('active');
+            document.getElementById('saved').classList.remove('active');
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.querySelectorAll('.tab-btn')[1].classList.remove('active');
         }
     }
 
-    draw(ctx) {
-        ctx.fillStyle = '#FF6347';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.strokeStyle = '#333';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(this.x + 10, this.y + 10, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(this.x + 20, this.y + 10, 4, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
-
-class Particle {
-    constructor(x, y, vx, vy, life) {
-        this.x = x;
-        this.y = y;
-        this.vx = vx;
-        this.vy = vy;
-        this.life = life;
-        this.maxLife = life;
-    }
-
-    update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vy += 0.2;
-        this.life--;
-    }
-
-    draw(ctx) {
-        const alpha = this.life / this.maxLife;
-        ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
-
-class GameManager {
-    constructor() {
-        this.canvas = document.getElementById('gameCanvas');
-        this.ctx = this.canvas.getContext('2d');
-        this.keys = {};
-        this.isPaused = false;
-        this.isGameOver = false;
-        this.score = 0;
-        this.health = 100;
-        this.particles = [];
-        this.character = null;
-        this.player = null;
-        this.collectibles = [];
-        this.enemies = [];
-        this.frameCount = 0;
-
-        this.setupEventListeners();
-    }
-
-    setupEventListeners() {
-        window.addEventListener('keydown', (e) => this.keys[e.key] = true);
-        window.addEventListener('keyup', (e) => this.keys[e.key] = false);
-
-        document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
-        document.getElementById('resumeBtn').addEventListener('click', () => this.togglePause());
-        document.getElementById('backBtn').addEventListener('click', () => this.backToCreator());
-        document.getElementById('backFromPauseBtn').addEventListener('click', () => this.backToCreator());
-        document.getElementById('newGameBtn').addEventListener('click', () => this.newGame());
-        document.getElementById('backFromGameOverBtn').addEventListener('click', () => this.backToCreator());
-    }
-
-    startGame(character) {
-        this.character = character;
-        this.player = new Player(character);
-        this.score = 0;
-        this.health = 100;
-        this.isGameOver = false;
-        this.isPaused = false;
-        this.collectibles = [];
-        this.enemies = [];
-        this.particles = [];
-        this.frameCount = 0;
-
-        document.getElementById('charTitle').textContent = `Game - ${character.name}`;
-        document.getElementById('creatorScreen').classList.remove('active');
-        document.getElementById('gameScreen').classList.add('active');
-        document.getElementById('pauseOverlay').classList.add('hidden');
-        document.getElementById('gameOverOverlay').classList.add('hidden');
-
-        this.spawnCollectibles(5);
-        this.spawnEnemies(2);
-        this.gameLoop();
-    }
-
-    spawnCollectibles(count) {
-        for (let i = 0; i < count; i++) {
-            const x = Math.random() * (800 - 20);
-            const y = Math.random() * (400 - 20);
-            this.collectibles.push(new Collectible(x, y));
+    deleteCharacter(idx) {
+        if (confirm('Delete this character?')) {
+            const saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+            saved.splice(idx, 1);
+            localStorage.setItem('savedCharacters', JSON.stringify(saved));
+            this.loadSavedCharacters();
         }
-    }
-
-    spawnEnemies(count) {
-        for (let i = 0; i < count; i++) {
-            const x = Math.random() * (800 - 30);
-            const y = Math.random() * 200 + 50;
-            this.enemies.push(new Enemy(x, y));
-        }
-    }
-
-    togglePause() {
-        this.isPaused = !this.isPaused;
-        document.getElementById('pauseOverlay').classList.toggle('hidden');
-    }
-
-    backToCreator() {
-        document.getElementById('gameScreen').classList.remove('active');
-        document.getElementById('creatorScreen').classList.add('active');
-    }
-
-    newGame() {
-        this.startGame(this.character);
-    }
-
-    gameLoop = () => {
-        if (!this.isPaused && !this.isGameOver) {
-            this.update();
-        }
-        this.draw();
-
-        if (!this.isGameOver) {
-            requestAnimationFrame(this.gameLoop);
-        }
-    };
-
-    update() {
-        this.frameCount++;
-
-        this.player.update(this.keys);
-
-        this.enemies.forEach(e => e.update());
-
-        this.collectibles = this.collectibles.filter(c => {
-            if (this.player.collidesWith(c)) {
-                this.score += 10;
-                this.createParticles(c.x + 10, c.y + 10);
-                return false;
-            }
-            return true;
-        });
-
-        this.enemies.forEach(enemy => {
-            if (this.player.collidesWith(enemy)) {
-                this.health -= 5;
-                this.createParticles(enemy.x, enemy.y);
-            }
-        });
-
-        if (this.collectibles.length === 0 && this.frameCount % 60 === 0) {
-            this.spawnCollectibles(2);
-        }
-
-        this.particles.forEach(p => p.update());
-        this.particles = this.particles.filter(p => p.life > 0);
-
-        if (this.health <= 0) {
-            this.endGame();
-        }
-
-        document.getElementById('score').textContent = this.score;
-        document.getElementById('health').textContent = this.health;
-    }
-
-    createParticles(x, y) {
-        for (let i = 0; i < 8; i++) {
-            const angle = (i / 8) * Math.PI * 2;
-            const vx = Math.cos(angle) * 3;
-            const vy = Math.sin(angle) * 3;
-            this.particles.push(new Particle(x, y, vx, vy, 30));
-        }
-    }
-
-    draw() {
-        this.ctx.fillStyle = '#87CEEB';
-        this.ctx.fillRect(0, 0, 800, 600);
-
-        this.collectibles.forEach(c => c.draw(this.ctx));
-        this.enemies.forEach(e => e.draw(this.ctx));
-        this.player.draw(this.ctx);
-        this.particles.forEach(p => p.draw(this.ctx));
-    }
-
-    endGame() {
-        this.isGameOver = true;
-        document.getElementById('finalScore').textContent = `Final Score: ${this.score}`;
-        document.getElementById('gameOverOverlay').classList.remove('hidden');
     }
 }
 
 // ========== INITIALIZATION ==========
 let creator = null;
-let gameManager = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     creator = new CharacterCreator();
-    gameManager = new GameManager();
 });

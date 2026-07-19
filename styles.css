@@ -1,4 +1,4 @@
-/* How to run: Link this file in index.html <head> with <link rel="stylesheet" href="styles.css"> */
+/* How to run: Link this file in index.html with <link rel="stylesheet" href="styles.css"> */
 
 * {
     margin: 0;
@@ -14,11 +14,12 @@ body {
     justify-content: center;
     align-items: center;
     color: #333;
+    padding: 20px;
 }
 
 #app {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
 }
 
 .screen {
@@ -41,7 +42,6 @@ body {
     border-radius: 20px;
     padding: 30px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    margin: 20px;
 }
 
 .creator-container h1 {
@@ -53,7 +53,7 @@ body {
 
 .creator-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.2fr 1fr;
     gap: 30px;
     align-items: start;
 }
@@ -75,10 +75,30 @@ body {
     background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
     margin-bottom: 15px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    cursor: grab;
+}
+
+#previewCanvas:active {
+    cursor: grabbing;
+}
+
+.preview-controls {
+    text-align: center;
+    font-size: 0.85em;
+    color: #667eea;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
 }
 
 .options-section {
-    max-height: 600px;
+    max-height: 700px;
     overflow-y: auto;
     padding-right: 10px;
 }
@@ -86,6 +106,42 @@ body {
 .options-section h2 {
     color: #667eea;
     margin-bottom: 15px;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #999;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-btn:hover {
+    color: #667eea;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
 }
 
 .option-group {
@@ -116,10 +172,82 @@ body {
     border-color: #667eea;
 }
 
+/* Saved Characters List */
+.saved-characters {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.empty-message {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
+}
+
+.character-item {
+    background: #f5f5f5;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+.character-item:hover {
+    border-color: #667eea;
+    background: #f9f9ff;
+}
+
+.character-item-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.character-item-date {
+    font-size: 0.8em;
+    color: #999;
+    margin-top: 3px;
+}
+
+.character-item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.char-btn-small {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.char-btn-load {
+    background: #667eea;
+    color: white;
+}
+
+.char-btn-load:hover {
+    background: #5568d3;
+}
+
+.char-btn-delete {
+    background: #ff6b6b;
+    color: white;
+}
+
+.char-btn-delete:hover {
+    background: #ff5252;
+}
+
 /* ============ BUTTONS ============ */
 .btn-primary,
-.btn-secondary,
-.btn-small {
+.btn-secondary {
     padding: 12px 24px;
     border: none;
     border-radius: 8px;
@@ -127,8 +255,6 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
-    margin-top: 10px;
-    margin-right: 10px;
 }
 
 .btn-primary {
@@ -145,8 +271,8 @@ body {
 .btn-secondary {
     background: #f0f0f0;
     color: #667eea;
-    width: 100%;
     border: 2px solid #667eea;
+    width: 100%;
 }
 
 .btn-secondary:hover {
@@ -154,52 +280,8 @@ body {
     color: white;
 }
 
-.btn-small {
-    padding: 8px 16px;
-    font-size: 0.9em;
-    width: auto;
-}
-
-/* ============ GAME SCREEN ============ */
-#gameScreen {
-    background: white;
-    border-radius: 20px;
-    padding: 20px;
-    margin: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-
-.game-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
-.game-header h2 {
-    color: #667eea;
-}
-
-.game-stats {
-    display: flex;
-    gap: 30px;
-    font-weight: bold;
-    color: #333;
-}
-
-#gameCanvas {
-    display: block;
-    border: 3px solid #667eea;
-    border-radius: 10px;
-    background: #87CEEB;
-    margin: 0 auto;
-    max-width: 100%;
-    height: auto;
-}
-
-/* ============ OVERLAYS ============ */
-.overlay {
+/* ============ MODAL ============ */
+.modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -213,59 +295,112 @@ body {
     animation: fadeIn 0.3s ease-in;
 }
 
-.overlay.hidden {
+.modal.hidden {
     display: none;
 }
 
-.overlay-content {
+.modal-content {
     background: white;
     padding: 40px;
     border-radius: 20px;
     text-align: center;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
 }
 
-.overlay-content h2 {
+.modal-content h2 {
     color: #667eea;
-    font-size: 2.5em;
     margin-bottom: 20px;
 }
 
-.overlay-content p {
-    color: #333;
-    font-size: 1.2em;
+.modal-content input {
+    width: 100%;
+    padding: 12px;
     margin-bottom: 20px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-buttons button {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.modal-buttons .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.modal-buttons .btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+.modal-buttons .btn-secondary {
+    background: #f0f0f0;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.modal-buttons .btn-secondary:hover {
+    background: #667eea;
+    color: white;
 }
 
 /* ============ RESPONSIVE ============ */
-@media (max-width: 800px) {
+@media (max-width: 1024px) {
     .creator-layout {
         grid-template-columns: 1fr;
         gap: 20px;
     }
 
+    #previewCanvas {
+        width: 100%;
+        height: auto;
+    }
+
+    .options-section {
+        max-height: 500px;
+    }
+}
+
+@media (max-width: 600px) {
     .creator-container {
-        padding: 20px;
+        padding: 15px;
     }
 
     .creator-container h1 {
-        font-size: 2em;
+        font-size: 1.8em;
     }
 
-    .game-header {
+    .tabs {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
     }
 
-    .game-stats {
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
+    .tab-btn {
+        border-bottom: none;
+        border-left: 3px solid transparent;
     }
 
-    #gameCanvas {
-        width: 100%;
-        height: auto;
+    .tab-btn.active {
+        border-bottom: none;
+        border-left-color: #667eea;
     }
 }
