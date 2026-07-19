@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CharacterMaker - 3D Character Creator</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
     <!-- How to run: Open this file in a modern web browser (Chrome, Firefox, Safari, Edge). -->
@@ -13,14 +14,14 @@
         <!-- Character Creator Screen -->
         <div id="creatorScreen" class="screen active">
             <div class="creator-container">
-                <h1>✨ CharacterMaker ✨</h1>
+                <h1>✨ CharacterMaker 3D ✨</h1>
                 <div class="creator-layout">
-                    <!-- Preview Canvas (3D) -->
+                    <!-- 3D Preview Canvas -->
                     <div class="preview-section">
                         <h2>Preview</h2>
-                        <canvas id="previewCanvas" width="400" height="500"></canvas>
+                        <div id="canvas-container"></div>
                         <div class="preview-controls">
-                            <p>Drag to rotate • Scroll to zoom</p>
+                            <p>Drag to rotate • Scroll to zoom • Middle-click to pan</p>
                         </div>
                         <div class="action-buttons">
                             <button id="saveCharBtn" class="btn-primary">Save Character</button>
@@ -53,13 +54,11 @@
                             </div>
 
                             <div class="option-group">
-                                <label>Face Shape</label>
-                                <select id="faceShape">
+                                <label>Head Shape</label>
+                                <select id="headShape">
                                     <option value="round" selected>Round</option>
                                     <option value="oval">Oval</option>
                                     <option value="square">Square</option>
-                                    <option value="rect">Rectangle</option>
-                                    <option value="diamond">Diamond</option>
                                 </select>
                             </div>
 
@@ -85,10 +84,10 @@
                             </div>
 
                             <div class="option-group">
-                                <label>Nose Style</label>
-                                <select id="noseStyle">
+                                <label>Nose Shape</label>
+                                <select id="noseShape">
                                     <option value="small" selected>Small</option>
-                                    <option value="round">Round</option>
+                                    <option value="large">Large</option>
                                     <option value="pointed">Pointed</option>
                                 </select>
                             </div>
@@ -97,7 +96,6 @@
                                 <label>Mouth</label>
                                 <select id="mouthStyle">
                                     <option value="smile" selected>Smile</option>
-                                    <option value="big">Big Smile</option>
                                     <option value="neutral">Neutral</option>
                                     <option value="sad">Sad</option>
                                 </select>
@@ -108,10 +106,8 @@
                                 <select id="hairStyle">
                                     <option value="short" selected>Short</option>
                                     <option value="long">Long</option>
-                                    <option value="spiky">Spiky</option>
                                     <option value="curly">Curly</option>
-                                    <option value="bob">Bob</option>
-                                    <option value="pixie">Pixie</option>
+                                    <option value="spiky">Spiky</option>
                                     <option value="wavy">Wavy</option>
                                 </select>
                             </div>
